@@ -1,0 +1,33 @@
+# Fictional example search config: one or more "tracks" (kinds of job you look for).
+base_location: Campinas, SP
+exclude: [estágio, internship]
+locations: [sp, sao paulo, campinas]
+remote: [remote, hybrid, onsite]
+tracks:
+  - id: env-consulting
+    name: Consultoria ambiental
+    keywords:
+      licenciamento: 3
+      environmental permitting: 3
+      recursos hidricos: 2
+      water resources: 2
+      monitoramento ambiental: 2
+    queries: [engenheiro ambiental, analista ambiental]
+    sources: [greenhouse, reliefweb]
+    companies:
+      greenhouse: [exampleconsulting]
+    emphasis: [exp-1]
+  - id: gis-data
+    name: Geoespacial e dados
+    keywords:
+      gis: 3
+      geoprocessamento: 3
+      qgis: 2
+      postgis: 2
+      python: 1
+    queries: [GIS analyst, analista de geoprocessamento]
+    remote: [remote, hybrid]
+    sources: [greenhouse]
+    companies:
+      greenhouse: [examplegis]
+    emphasis: [exp-2, sk-1]

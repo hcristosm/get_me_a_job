@@ -1,0 +1,82 @@
+# Fictional example profile. Every free-text field has a `pt` and an `en` variant.
+# `auto: [en]` marks a machine translation that was not reviewed yet: remove it after checking.
+name: Ana Exemplo
+email: ana.exemplo@example.com
+phone: "+55 11 90000-0000"
+location: Campinas, SP, Brasil
+links:
+  linkedin: https://www.linkedin.com/in/ana-exemplo
+  github: https://github.com/ana-exemplo
+canonical_lang: pt
+headline:
+  pt: Engenheira Ambiental | Licenciamento, Recursos Hídricos e Geoprocessamento
+  en: Environmental Engineer | Permitting, Water Resources and GIS
+summary:
+  pt: Engenheira ambiental com 5 anos de experiência em licenciamento e monitoramento de recursos hídricos, com uso diário de QGIS e Python.
+  en: Environmental engineer with 5 years of experience in permitting and water resources monitoring, using QGIS and Python daily.
+experiences:
+  - id: exp-1
+    title:
+      pt: Analista Ambiental
+      en: Environmental Analyst
+    org: Consultoria Rio Claro
+    location: Campinas, SP
+    start: "2022-03"
+    bullets:
+      - id: exp-1-b1
+        text:
+          pt: Coordenei o monitoramento de qualidade da água em 12 pontos de coleta.
+          en: Coordinated water quality monitoring at 12 sampling points.
+      - id: exp-1-b2
+        text:
+          pt: Automatizei relatórios de monitoramento com Python, reduzindo o tempo de entrega em 40%.
+          en: Automated monitoring reports with Python, cutting delivery time by 40%.
+          auto: [en]
+  - id: exp-2
+    title:
+      pt: Estagiária de Geoprocessamento
+      en: GIS Intern
+      auto: [en]
+    org: Prefeitura de Exemplo
+    start: "2020-01"
+    end: "2021-12"
+    bullets:
+      - id: exp-2-b1
+        text:
+          pt: Produzi mapas de uso do solo para o plano diretor municipal.
+          en: Produced land use maps for the municipal master plan.
+      - id: exp-2-b2
+        text:
+          pt: Migrei a base de dados espaciais da secretaria para PostGIS.
+          en: Migrated the department's spatial database to PostGIS.
+education:
+  - id: edu-1
+    degree:
+      pt: Bacharelado em Engenharia Ambiental
+      en: B.Sc. in Environmental Engineering
+    institution: Universidade Exemplo
+    start: "2016"
+    end: "2021"
+skills:
+  - id: sk-1
+    name:
+      pt: Geoprocessamento
+      en: GIS
+    items: [QGIS, PostGIS, GeoPandas]
+  - id: sk-2
+    name:
+      pt: Programação
+      en: Programming
+    items: [Python, SQL]
+languages:
+  - name: Português
+    level: nativo
+  - name: English
+    level: fluent
+answers:
+  salary_expectation:
+    pt: A combinar
+    en: Negotiable
+  relocation:
+    pt: Disponível para mudança dentro do estado de SP.
+    en: Open to relocating within São Paulo state.
