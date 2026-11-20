@@ -1,0 +1,38 @@
+# --- Personal data: never commit ---
+/*.pdf
+data/
+*.sqlite
+*.db
+
+# --- AI / assistant context: stays on this machine ---
+docs/superpowers/
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+AGENTS.md
+GEMINI.md
+*.session.md
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# --- Env / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
