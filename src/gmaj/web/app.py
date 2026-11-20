@@ -10,6 +10,7 @@ from pydantic import ValidationError
 
 from gmaj.config import data_dir, load_settings
 from gmaj.db import STATUSES, connect, get_job, list_jobs, row_to_job, set_fit, set_status
+from gmaj.launcher import Activity
 from gmaj.llm import LLMError, get_llm
 from gmaj.pipeline import ConfigError, NotInitialized, is_collecting, load_user_files, safe_run_collect, triage_and_store
 from gmaj.profile import Profile, SearchConfig
@@ -22,7 +23,7 @@ TABS = ("new", "selected", "applied")
 FILES = {"profile": ("profile.yaml", Profile), "search": ("search.yaml", SearchConfig)}
 
 
-def create_app(data: Path | None = None) -> FastAPI:
+def create_app(data: Path | None = None, activity: "Activity | None" = None) -> FastAPI:
     app = FastAPI(title="get_me_a_job")
     # Only this machine may talk to the app: blocks DNS rebinding (Host) and cross-site form posts (CSRF).
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost"])
@@ -73,6 +74,18 @@ def create_app(data: Path | None = None) -> FastAPI:
         job = dict(row)
         job["fit"] = json.loads(row["fit_json"]) if row["fit_json"] else None
         return job
+
+    @app.get("/api/alive")
+    def alive():
+        if activity:
+            activity.alive()
+        return {"ok": True}
+
+    @app.post("/api/bye")
+    def bye():
+        if activity:
+            activity.bye()
+        return {"ok": True}
 
     @app.get("/")
     def root():

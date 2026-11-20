@@ -58,5 +58,10 @@
   {% endif %}
   {% block content %}{% endblock %}
 </main>
+<script>
+  // keeps a one-click (gmaj open) server alive while a page is open; harmless under gmaj serve
+  fetch('/api/alive'); setInterval(() => fetch('/api/alive').catch(() => {}), 15000);
+  addEventListener('pagehide', () => navigator.sendBeacon('/api/bye'));
+</script>
 </body>
 </html>
