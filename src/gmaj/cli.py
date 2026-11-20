@@ -8,6 +8,7 @@ def build_parser() -> argparse.ArgumentParser:
     init = sub.add_parser("init", help="build your profile and search tracks from a CV PDF")
     init.add_argument("--cv", required=True, type=Path)
     init.add_argument("--force", action="store_true", help="overwrite existing profile/search files")
+    sub.add_parser("collect", help="collect, filter and score jobs now")
     return p
 
 
@@ -21,5 +22,19 @@ def main(argv: list[str] | None = None) -> int:
         except (LLMError, ValueError, OSError) as e:
             print(f"error: {e}")
             return 1
+    if args.cmd == "collect":
+        from gmaj.pipeline import NotInitialized, run_collect
+        try:
+            rep = run_collect()
+        except NotInitialized as e:
+            print(e)
+            return 1
+        if rep.skipped:
+            print("Another collect is already running.")
+            return 0
+        print(f"fetched {rep.fetched}, new {rep.new}, kept {rep.kept}, scored {rep.scored}")
+        for err in rep.errors:
+            print(f"  error: {err}")
+        return 0
     build_parser().print_help()
     return 0
