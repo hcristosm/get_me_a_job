@@ -64,8 +64,9 @@ def score_fit(job: Job, track: Track, profile: Profile, lang: str, llm: LLM) -> 
     prompt = files("gmaj.prompts").joinpath("fit_score.md").read_text(encoding="utf-8").format(
         track_name=track.name, profile=profile_to_text(profile, lang), job_title=job.title,
         job_company=job.company, job_description=job.description[:6000], lang=lang)
+    answer = llm.complete(prompt, FIT_SCHEMA)  # backend errors propagate: callers decide
     try:
-        d = parse_json(llm.complete(prompt, FIT_SCHEMA))
+        d = parse_json(answer)
         return {"score": max(0, min(100, int(d["score"]))), "summary": str(d.get("summary", "")),
                 "strengths": list(d.get("strengths", []))[:3], "gaps": list(d.get("gaps", []))[:3]}
     except (LLMError, KeyError, TypeError, ValueError):

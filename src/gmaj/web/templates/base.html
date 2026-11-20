@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}get_me_a_job{% endblock %}</title>
+<style>
+  :root { --fg:#1d1d1f; --muted:#6b6b70; --bg:#fafafa; --card:#fff; --line:#e3e3e6; --accent:#1f6feb; --good:#1a7f37; --mid:#9a6700; --low:#b42318; }
+  @media (prefers-color-scheme: dark) { :root { --fg:#e8e8ea; --muted:#9a9aa0; --bg:#161618; --card:#1f1f22; --line:#2e2e33; --accent:#4c8dff; --good:#3fb950; --mid:#d29922; --low:#f85149; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 system-ui, sans-serif; color:var(--fg); background:var(--bg); }
+  main { max-width:960px; margin:0 auto; padding:16px; }
+  header { display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--line); background:var(--card); }
+  nav a { margin-right:12px; color:var(--fg); text-decoration:none; }
+  nav a.on { font-weight:600; border-bottom:2px solid var(--accent); }
+  a { color:var(--accent); }
+  button, .btn { font:inherit; padding:6px 12px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--fg); cursor:pointer; text-decoration:none; display:inline-block; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  button:disabled { opacity:.6; cursor:wait; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin:10px 0; }
+  .row { display:flex; gap:12px; align-items:flex-start; }
+  .score { min-width:52px; text-align:center; font-weight:700; font-size:18px; }
+  .score small { display:block; font-size:11px; font-weight:400; color:var(--muted); }
+  .hi { color:var(--good); } .mid { color:var(--mid); } .lo { color:var(--low); }
+  .meta, .muted { color:var(--muted); font-size:13px; }
+  .actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .actions form { margin:0; }
+  .notice { background:var(--card); border-left:4px solid var(--accent); padding:8px 12px; margin:10px 0; }
+  .error { border-left-color:var(--low); white-space:pre-wrap; }
+  textarea { width:100%; min-height:360px; font:13px/1.4 ui-monospace, monospace; padding:8px; background:var(--card); color:var(--fg); border:1px solid var(--line); border-radius:6px; }
+  input[type=text], input[type=url], select { font:inherit; padding:6px 8px; width:100%; background:var(--card); color:var(--fg); border:1px solid var(--line); border-radius:6px; }
+  pre.desc { white-space:pre-wrap; font:inherit; }
+  h1 { font-size:20px; } h2 { font-size:17px; }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <strong style="margin-right:16px">get_me_a_job</strong>
+    {% for t in tabs %}<a href="/jobs?status={{ t }}" class="{{ 'on' if status == t }}">{{ labels[t] }}</a>{% endfor %}
+    <a href="/import">Importar</a>
+    <a href="/profile">Perfil</a>
+  </nav>
+  <form method="post" action="/collect" onsubmit="this.querySelector('button').disabled=true">
+    <button class="primary" {{ 'disabled' if collecting or not initialized }}>{{ 'Buscando…' if collecting else 'Buscar vagas' }}</button>
+  </form>
+</header>
+<main>
+  {% if not initialized %}
+  <div class="notice error">Você ainda não tem um perfil. No terminal, rode <code>gmaj init --cv &lt;arquivo.pdf&gt;</code> e recarregue esta página.</div>
+  {% endif %}
+  {% if notice %}<div class="notice">{{ notice }}</div>{% endif %}
+  {% if last_collect %}
+  <p class="muted">Última busca: {{ last_collect.finished_at[:16].replace('T', ' ') }} UTC · {{ last_collect.new }} novas, {{ last_collect.kept }} no seu perfil{% if last_collect.errors %} · {{ last_collect.errors|length }} fonte(s) com erro{% endif %}</p>
+  {% if last_collect.errors %}<details class="muted"><summary>Erros da última busca</summary><ul>{% for e in last_collect.errors %}<li>{{ e }}</li>{% endfor %}</ul></details>{% endif %}
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

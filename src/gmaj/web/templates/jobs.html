@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+{% if search %}
+<form method="get" action="/jobs" class="row" style="align-items:center">
+  <input type="hidden" name="status" value="{{ status }}">
+  <select name="track" onchange="this.form.submit()" style="max-width:320px">
+    <option value="">Todas as trilhas</option>
+    {% for t in search.tracks %}<option value="{{ t.id }}" {{ 'selected' if track == t.id }}>{{ t.name }}</option>{% endfor %}
+  </select>
+</form>
+{% endif %}
+{% set names = {} %}{% if search %}{% for t in search.tracks %}{% set _ = names.update({t.id: t.name}) %}{% endfor %}{% endif %}
+{% for job in jobs %}
+<div class="card row">
+  {% include "_score.html" %}
+  <div style="flex:1">
+    <a href="/jobs/{{ job.id }}"><strong>{{ job.title }}</strong></a>
+    <div class="meta">{{ job.company }}{% if job.location %} · {{ job.location }}{% endif %}{% if job.remote %} · {{ remote_labels.get(job.remote, job.remote) }}{% endif %} · {{ job.source }}{% if job.track_id in names %} · {{ names[job.track_id] }}{% endif %}</div>
+    {% if job.fit %}<div>{{ job.fit.summary }}</div>{% else %}<div class="muted">{{ job.description[:200] }}{% if job.description|length > 200 %}…{% endif %}</div>{% endif %}
+    <div class="actions">
+      {% if not job.url.startswith('manual:') %}<a class="btn" href="{{ job.url }}" target="_blank" rel="noopener">Ver vaga</a>{% endif %}
+      {% for s, label in [('selected', 'Selecionar'), ('applied', 'Candidatei'), ('discarded', 'Descartar')] if s != status %}
+      <form method="post" action="/jobs/{{ job.id }}/status"><input type="hidden" name="status" value="{{ s }}"><input type="hidden" name="back" value="/jobs?status={{ status }}{% if track %}&track={{ track }}{% endif %}"><button>{{ label }}</button></form>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+{% if initialized and not notice %}<p class="muted">Nenhuma vaga aqui ainda.{% if status == 'new' %} Clique em “Buscar vagas”.{% endif %}</p>{% endif %}
+{% endfor %}
+{% endblock %}

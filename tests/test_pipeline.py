@@ -80,3 +80,17 @@ def test_triage_and_store_keeps_unmatched_import_as_new(conn):
     jid = triage_and_store(conn, Job("manual", "x", "manual:x", "Cozinheiro", "Restaurante"), _search(), force_new=True)
     rows = list_jobs(conn, "new")
     assert [r["id"] for r in rows] == [jid] and rows[0]["lang"] in ("pt", "en")
+
+
+def test_collect_stops_scoring_when_backend_is_down(conn, tmp_path, example_profile, board_client):
+    from gmaj.llm import LLMError
+
+    class Down:
+        calls = 0
+
+        def complete(self, prompt, json_schema=None):
+            Down.calls += 1
+            raise LLMError("ollama down")
+    rep = collect(conn, _search(exclude=[]), example_profile, Settings(), board_client, Down(), tmp_path / "l")
+    assert rep.new == 2 and rep.scored == 0 and Down.calls == 1
+    assert any("ollama down" in e for e in rep.errors)

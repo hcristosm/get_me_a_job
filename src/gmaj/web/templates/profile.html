@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Perfil · get_me_a_job{% endblock %}
+{% block content %}
+<h1>Perfil e busca</h1>
+{% if error %}<div class="notice error">Erro ao salvar {{ 'o perfil' if error_kind == 'profile' else 'a busca' }} (nada foi alterado):
+{{ error }}</div>{% endif %}
+{% if unreviewed %}
+<div class="card">
+  <h2 style="margin-top:0">Traduções automáticas não revisadas ({{ unreviewed|length }})</h2>
+  <p class="muted">Confira estes campos no perfil abaixo. Depois de revisar um campo, apague a linha <code>auto: [..]</code> dele.</p>
+  <ul>{% for p in unreviewed %}<li><code>{{ p }}</code></li>{% endfor %}</ul>
+</div>
+{% endif %}
+{% for kind, title, help in [('profile', 'Perfil mestre (profile.yaml)', 'Seus dados, experiências e respostas padrão, em PT e EN.'), ('search', 'Busca e trilhas (search.yaml)', 'Palavras-chave, exclusões, locais e fontes de cada trilha.')] %}
+<form method="post" action="/profile" class="card">
+  <h2 style="margin-top:0">{{ title }}</h2>
+  <p class="muted">{{ help }}</p>
+  <input type="hidden" name="kind" value="{{ kind }}">
+  <textarea name="content" spellcheck="false">{{ texts[kind] }}</textarea>
+  <div class="actions"><button class="primary">Salvar</button></div>
+</form>
+{% endfor %}
+{% endblock %}

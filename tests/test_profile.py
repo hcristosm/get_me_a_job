@@ -63,3 +63,10 @@ def test_profile_to_text_has_ids_and_language():
     assert f"[{p.experiences[0].bullets[0].id}]" in txt
     assert p.summary.get("en") in txt
     assert p.summary.get("pt") not in txt
+
+
+def test_project_name_is_bilingual(example_profile):
+    from gmaj.profile import Project
+    pr = Project(id="prj-1", name={"pt": "Videomonitoramento", "en": "Video monitoring"}, description={"pt": "x"})
+    p = example_profile.model_copy(update={"projects": [pr]})
+    assert "Video monitoring" in profile_to_text(p, "en")

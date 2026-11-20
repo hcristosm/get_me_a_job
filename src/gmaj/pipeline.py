@@ -10,7 +10,7 @@ import httpx
 from gmaj.config import Settings
 from gmaj.db import jobs_needing_fit, row_to_job, set_fit, set_triage, upsert_job
 from gmaj.jobs import Job
-from gmaj.llm import LLM
+from gmaj.llm import LLM, LLMError
 from gmaj.profile import Profile, SearchConfig
 from gmaj.triage import best_track, detect_lang, keyword_score, score_fit
 
@@ -69,7 +69,11 @@ def collect(conn: sqlite3.Connection, search: SearchConfig, profile: Profile, se
             by_id = {t.id: t for t in tracks}
             for row in jobs_needing_fit(conn, settings.max_scored_per_run):
                 track = by_id.get(row["track_id"])
-                fit = track and score_fit(row_to_job(row), track, profile, row["lang"] or "en", scoring_llm)
+                try:
+                    fit = track and score_fit(row_to_job(row), track, profile, row["lang"] or "en", scoring_llm)
+                except LLMError as e:  # backend down: stop scoring, keep keyword scores, retry next run
+                    rep.errors.append(f"scoring: {e}")
+                    break
                 if fit:
                     set_fit(conn, row["id"], fit["score"], fit)
                     rep.scored += 1
@@ -104,3 +108,15 @@ def run_collect(d: Path | None = None) -> CollectReport:
         llm = None  # keyword scores only; jobs get a fit score on a later run
     with sources.make_client(settings) as client:
         return collect(connect(d / "jobs.sqlite"), search, profile, settings, client, llm, d / "collect.lock")
+
+
+def is_collecting(lock_path: Path) -> bool:
+    if not lock_path.exists():
+        return False
+    with open(lock_path, "a") as f:
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return True
+        fcntl.flock(f, fcntl.LOCK_UN)
+        return False

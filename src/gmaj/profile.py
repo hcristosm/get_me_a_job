@@ -60,7 +60,7 @@ class Education(_Strict):
 
 class Project(_Strict):
     id: str
-    name: str
+    name: Text
     description: Text
     url: str = ""
     bullets: list[Bullet] = []
@@ -213,7 +213,7 @@ def profile_to_text(p: Profile, lang: str) -> str:
     if p.projects:
         out.append("PROJECTS")
         for pr in p.projects:
-            out.append(f"[{pr.id}] {pr.name}: {pr.description.get(lang)}")
+            out.append(f"[{pr.id}] {pr.name.get(lang)}: {pr.description.get(lang)}")
             out += [f"  [{b.id}] {b.text.get(lang)}" for b in pr.bullets]
     if p.education:
         out.append("EDUCATION")

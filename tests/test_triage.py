@@ -66,3 +66,14 @@ def test_score_fit_returns_none_on_bad_json(fake_llm_factory, example_profile):
 def test_score_fit_returns_none_on_missing_score(fake_llm_factory, example_profile):
     llm = fake_llm_factory(['{"summary": "ok"}'])
     assert score_fit(Job("x", "1", "u", "GIS", "A"), make_track(), example_profile, "en", llm) is None
+
+
+def test_score_fit_propagates_backend_errors(example_profile):
+    import pytest
+    from gmaj.llm import LLMError
+
+    class Down:
+        def complete(self, prompt, json_schema=None):
+            raise LLMError("offline")
+    with pytest.raises(LLMError):
+        score_fit(Job("x", "1", "u", "GIS", "A"), make_track(), example_profile, "en", Down())

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Importar vaga · get_me_a_job{% endblock %}
+{% block content %}
+<h1>Importar uma vaga</h1>
+{% if message %}<div class="notice">{{ message }}</div>{% endif %}
+<form method="post" action="/import/url" class="card">
+  <h2 style="margin-top:0">Pelo link</h2>
+  <p class="muted">Funciona com páginas de vaga que publicam dados estruturados. Links do LinkedIn não são abertos: cole o texto abaixo.</p>
+  <input type="url" name="url" placeholder="https://..." required>
+  <div class="actions"><button class="primary">Importar link</button></div>
+</form>
+<form method="post" action="/import/text" class="card">
+  <h2 style="margin-top:0">Colando o texto</h2>
+  <p><input type="text" name="title" placeholder="Título da vaga" required></p>
+  <p><input type="text" name="company" placeholder="Empresa" required></p>
+  <p><input type="url" name="url" placeholder="Link da vaga (opcional)"></p>
+  <textarea name="description" placeholder="Cole aqui a descrição da vaga" required style="min-height:220px"></textarea>
+  <div class="actions"><button class="primary">Importar texto</button></div>
+</form>
+{% endblock %}

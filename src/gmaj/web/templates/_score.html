@@ -1,0 +1,5 @@
+{% if job.fit_score is not none %}
+<div class="score {{ 'hi' if job.fit_score >= 75 else 'mid' if job.fit_score >= 50 else 'lo' }}">{{ job.fit_score }}<small>encaixe</small></div>
+{% else %}
+<div class="score muted">{{ '%g' % (job.keyword_score or 0) }}<small>palavras</small></div>
+{% endif %}
