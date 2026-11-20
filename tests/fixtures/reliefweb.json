@@ -1,0 +1,4 @@
+{"totalCount": 2, "count": 2, "data": [
+ {"id": "4100001", "score": 1, "fields": {"title": "Landslide Risk Specialist", "body": "Support **landslide** hazard mapping and early warning systems.", "url": "https://reliefweb.int/job/4100001/landslide-risk-specialist", "source": [{"name": "Example Relief Org"}], "country": [{"name": "Nepal"}], "city": [{"name": "Kathmandu"}], "date": {"created": "2026-11-15T00:00:00+00:00"}}},
+ {"id": "4100002", "score": 1, "fields": {"title": "GIS Officer - Disaster Risk Reduction", "body": "Maintain GIS databases for DRR programmes.", "url": "https://reliefweb.int/job/4100002/gis-officer", "source": [{"name": "Example NGO"}], "country": [{"name": "Mozambique"}], "date": {"created": "2026-11-12T00:00:00+00:00"}}}
+]}
