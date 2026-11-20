@@ -46,3 +46,33 @@ def board_client():
         "https://api.lever.co/v0/postings/palantir": FIX / "lever.json",
         "https://api.ashbyhq.com/posting-api/job-board/ramp": FIX / "ashby.json",
     })
+
+
+EX = Path(__file__).parent.parent / "examples"
+
+
+class FakeLLM:
+    def __init__(self, responses: list[str]):
+        self.responses = list(responses)
+        self.prompts: list[str] = []
+
+    def complete(self, prompt: str, json_schema: dict | None = None) -> str:
+        self.prompts.append(prompt)
+        return self.responses.pop(0)
+
+
+@pytest.fixture
+def fake_llm_factory():
+    return FakeLLM
+
+
+@pytest.fixture
+def example_profile():
+    from gmaj.profile import load_profile
+    return load_profile(EX / "profile.example.yaml")
+
+
+@pytest.fixture
+def example_search():
+    from gmaj.profile import load_search
+    return load_search(EX / "search.example.yaml")
