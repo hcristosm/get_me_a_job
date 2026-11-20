@@ -33,10 +33,12 @@ python3 -m venv .venv && .venv/bin/pip install -e .
 
 ```bash
 .venv/bin/gmaj init --cv path/to/your_cv.pdf   # builds profile.yaml + search.yaml
-.venv/bin/gmaj serve                           # http://127.0.0.1:8765
+.venv/bin/gmaj install-launcher --desktop      # adds a "get_me_a_job" icon (Linux)
 ```
 
-Then in the browser: open **Perfil**, review the machine-translated fields and your tracks, and click **Buscar vagas**. `gmaj collect` does the same from the terminal.
+From then on, **click the get_me_a_job icon**: the dashboard opens in your browser, and the app stops by itself a few seconds after you close the tab. No terminal needed. `gmaj open` does the same from a terminal, and `gmaj serve` runs it until Ctrl+C.
+
+In the dashboard: open **Perfil**, review the machine-translated fields and your tracks, and click **Buscar vagas**. `gmaj collect` does the same from the terminal.
 
 ### Optional: daily automatic collection
 
@@ -112,9 +114,9 @@ Ferramenta local que encontra vagas do **seu** nicho, dá uma nota de encaixe pa
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -e .
 .venv/bin/gmaj init --cv seu_cv.pdf
-.venv/bin/gmaj serve        # abra http://127.0.0.1:8765
+.venv/bin/gmaj install-launcher --desktop   # cria o ícone "get_me_a_job"
 ```
 
-Revise o perfil na aba **Perfil** (apague `auto: [en]` dos campos já conferidos) e clique em **Buscar vagas**. A coleta automática diária é opcional: `gmaj schedule install`.
+Depois é só clicar no ícone: o painel abre no navegador e o programa desliga sozinho alguns segundos depois que você fecha a aba. Revise o perfil na aba **Perfil** (apague `auto: [en]` dos campos já conferidos) e clique em **Buscar vagas**. A coleta automática diária é opcional: `gmaj schedule install`.
 
 Requisitos opcionais: Ollama com um modelo (para as notas) e o Claude Code logado num plano Pro ou Max (para o onboarding). Sem chave de API paga.

@@ -10,6 +10,8 @@ def build_parser() -> argparse.ArgumentParser:
     init.add_argument("--force", action="store_true", help="overwrite existing profile/search files")
     sub.add_parser("collect", help="collect, filter and score jobs now")
     sub.add_parser("open", help="open the dashboard; the app stops by itself when you close it")
+    inst = sub.add_parser("install-launcher", help="add a get_me_a_job icon to your applications menu (Linux)")
+    inst.add_argument("--desktop", action="store_true", help="also put the icon on your desktop")
     serve = sub.add_parser("serve", help="run the web interface until Ctrl+C")
     serve.add_argument("--port", type=int)
     sched = sub.add_parser("schedule", help="optional: run 'collect' automatically every day (off by default)")
@@ -47,6 +49,18 @@ def main(argv: list[str] | None = None) -> int:
         from gmaj.config import load_settings
         from gmaj.launcher import open_app
         return open_app(load_settings().port)
+    if args.cmd == "install-launcher":
+        import sys
+
+        from gmaj.launcher import install_launcher
+        from gmaj.schedule import gmaj_exe
+        if sys.platform != "linux":
+            print(f"Create a shortcut to this command instead:\n{gmaj_exe()} open")
+            return 0
+        for path in install_launcher(args.desktop):
+            print(f"Created {path}")
+        print("Open 'get_me_a_job' from your applications menu. Closing the browser tab stops it.")
+        return 0
     if args.cmd == "serve":
         import uvicorn
 

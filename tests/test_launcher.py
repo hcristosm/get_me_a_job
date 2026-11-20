@@ -66,3 +66,21 @@ def test_watchdog_stops_server(tmp_path):
     srv = FakeServer()
     watch(srv, Activity(last_seen=-1000), tmp_path / "collect.lock", interval=0.01)
     assert srv.should_exit
+
+
+def test_desktop_entry_content():
+    from gmaj.launcher import desktop_entry
+    e = desktop_entry("/home/x/my apps/gmaj")
+    assert 'Exec="/home/x/my apps/gmaj" open' in e and "Terminal=false" in e
+    assert e.startswith("[Desktop Entry]") and "Type=Application" in e and "Name=get_me_a_job" in e
+
+
+def test_install_launcher_writes_files(tmp_path, monkeypatch):
+    from gmaj import launcher
+    monkeypatch.setattr(launcher.Path, "home", lambda: tmp_path)
+    monkeypatch.setattr(launcher.subprocess, "run", lambda *a, **k: None)
+    (tmp_path / "Desktop").mkdir()
+    paths = launcher.install_launcher(desktop=True)
+    menu = tmp_path / ".local/share/applications/get_me_a_job.desktop"
+    assert menu in paths and menu.exists() and (tmp_path / "Desktop/get_me_a_job.desktop").exists()
+    assert (tmp_path / "Desktop/get_me_a_job.desktop").stat().st_mode & 0o100

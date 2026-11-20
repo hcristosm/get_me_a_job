@@ -1,4 +1,5 @@
 """One-click mode: open the dashboard, and stop the server once the browser is closed."""
+import subprocess
 import threading
 import time
 import webbrowser
@@ -68,3 +69,27 @@ def open_app(port: int, data: Path | None = None) -> int:
     threading.Thread(target=open_when_ready, daemon=True).start()
     server.run()
     return 0
+
+
+def desktop_entry(exe: str) -> str:
+    return ("[Desktop Entry]\nType=Application\nName=get_me_a_job\n"
+            "Comment=Find niche jobs and score your fit\n"
+            f'Exec="{exe}" open\nTerminal=false\nIcon=system-search\nCategories=Office;\n')
+
+
+def install_launcher(desktop: bool = False) -> list[Path]:
+    """Linux: add a menu entry (and optionally a desktop icon) that runs `gmaj open`."""
+    from gmaj.schedule import gmaj_exe
+    entry = desktop_entry(gmaj_exe())
+    targets = [Path.home() / ".local/share/applications/get_me_a_job.desktop"]
+    if desktop:
+        desk = subprocess.run(["xdg-user-dir", "DESKTOP"], capture_output=True, text=True)
+        targets.append(Path(desk.stdout.strip() if desk and desk.stdout.strip() else Path.home() / "Desktop")
+                       / "get_me_a_job.desktop")
+    for t in targets:
+        t.parent.mkdir(parents=True, exist_ok=True)
+        t.write_text(entry)
+        t.chmod(0o755)
+    if desktop:  # GNOME asks before running untrusted desktop icons; best effort
+        subprocess.run(["gio", "set", str(targets[-1]), "metadata::trusted", "true"], capture_output=True)
+    return targets
