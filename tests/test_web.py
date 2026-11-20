@@ -25,7 +25,7 @@ def seeded(data_dir):
 
 @pytest.fixture
 def client(data_dir, seeded):
-    return TestClient(create_app(data_dir))
+    return TestClient(create_app(data_dir), base_url="http://127.0.0.1:8765")
 
 
 def test_root_redirects_to_new_jobs(client):
@@ -113,11 +113,11 @@ def test_import_url_without_jobposting_asks_for_text(client, monkeypatch):
 
 def test_collect_button_starts_background_run(client, monkeypatch):
     calls = []
-    monkeypatch.setattr("gmaj.web.app.run_collect", lambda d: calls.append(d))
+    monkeypatch.setattr("gmaj.web.app.safe_run_collect", lambda d: calls.append(d))
     r = client.post("/collect")
     assert r.status_code == 200 and calls and "Buscando vagas" in r.text
 
 
 def test_missing_profile_shows_banner(data_dir):
-    r = TestClient(create_app(data_dir)).get("/jobs?status=new")
+    r = TestClient(create_app(data_dir), base_url="http://127.0.0.1:8765").get("/jobs?status=new")
     assert r.status_code == 200 and "gmaj init" in r.text

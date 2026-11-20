@@ -18,7 +18,7 @@
     <div class="meta">{{ job.company }}{% if job.location %} · {{ job.location }}{% endif %}{% if job.remote %} · {{ remote_labels.get(job.remote, job.remote) }}{% endif %} · {{ job.source }}{% if job.track_id in names %} · {{ names[job.track_id] }}{% endif %}</div>
     {% if job.fit %}<div>{{ job.fit.summary }}</div>{% else %}<div class="muted">{{ job.description[:200] }}{% if job.description|length > 200 %}…{% endif %}</div>{% endif %}
     <div class="actions">
-      {% if not job.url.startswith('manual:') %}<a class="btn" href="{{ job.url }}" target="_blank" rel="noopener">Ver vaga</a>{% endif %}
+      {% if job.url.startswith(('http://', 'https://')) %}<a class="btn" href="{{ job.url }}" target="_blank" rel="noopener">Ver vaga</a>{% endif %}
       {% for s, label in [('selected', 'Selecionar'), ('applied', 'Candidatei'), ('discarded', 'Descartar')] if s != status %}
       <form method="post" action="/jobs/{{ job.id }}/status"><input type="hidden" name="status" value="{{ s }}"><input type="hidden" name="back" value="/jobs?status={{ status }}{% if track %}&track={{ track }}{% endif %}"><button>{{ label }}</button></form>
       {% endfor %}

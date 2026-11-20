@@ -21,8 +21,8 @@ def _postings(data):
 
 def fetch_job(url: str, client: httpx.Client) -> Job | None:
     """Import one job page via its schema.org JobPosting JSON-LD. LinkedIn is never fetched."""
-    host = urlsplit(url).hostname or ""
-    if host == "linkedin.com" or host.endswith(".linkedin.com"):
+    from gmaj.sources import is_blocked_host
+    if is_blocked_host(urlsplit(url).hostname or ""):
         return None
     r = client.get(url)
     r.raise_for_status()

@@ -7,7 +7,7 @@
     <h1 style="margin:0">{{ job.title }}</h1>
     <div class="meta">{{ job.company }}{% if job.location %} · {{ job.location }}{% endif %}{% if job.remote %} · {{ remote_labels.get(job.remote, job.remote) }}{% endif %} · {{ job.source }} · {{ labels.get(job.status, job.status) }}</div>
     <div class="actions">
-      {% if not job.url.startswith('manual:') %}<a class="btn" href="{{ job.url }}" target="_blank" rel="noopener">Ver vaga original</a>{% endif %}
+      {% if job.url.startswith(('http://', 'https://')) %}<a class="btn" href="{{ job.url }}" target="_blank" rel="noopener">Ver vaga original</a>{% endif %}
       {% for s, label in [('selected', 'Selecionar'), ('applied', 'Candidatei'), ('discarded', 'Descartar')] if s != job.status %}
       <form method="post" action="/jobs/{{ job.id }}/status"><input type="hidden" name="status" value="{{ s }}"><input type="hidden" name="back" value="/jobs/{{ job.id }}"><button>{{ label }}</button></form>
       {% endfor %}

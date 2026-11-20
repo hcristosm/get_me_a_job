@@ -3,14 +3,15 @@ from pathlib import Path
 
 import yaml
 from fastapi import BackgroundTasks, FastAPI, Form, HTTPException, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import PlainTextResponse, RedirectResponse
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 
 from gmaj.config import data_dir, load_settings
 from gmaj.db import STATUSES, connect, get_job, list_jobs, row_to_job, set_fit, set_status
 from gmaj.llm import LLMError, get_llm
-from gmaj.pipeline import NotInitialized, is_collecting, load_user_files, run_collect, triage_and_store
+from gmaj.pipeline import ConfigError, NotInitialized, is_collecting, load_user_files, safe_run_collect, triage_and_store
 from gmaj.profile import Profile, SearchConfig
 from gmaj.sources import make_client
 from gmaj.sources.url_import import fetch_job, job_from_text
@@ -23,6 +24,17 @@ FILES = {"profile": ("profile.yaml", Profile), "search": ("search.yaml", SearchC
 
 def create_app(data: Path | None = None) -> FastAPI:
     app = FastAPI(title="get_me_a_job")
+    # Only this machine may talk to the app: blocks DNS rebinding (Host) and cross-site form posts (CSRF).
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost"])
+
+    @app.middleware("http")
+    async def same_origin_only(request: Request, call_next):
+        if request.method not in ("GET", "HEAD"):
+            origin = request.headers.get("origin")
+            if request.headers.get("sec-fetch-site") == "cross-site" or (
+                    origin and origin != f"{request.url.scheme}://{request.headers.get('host')}"):
+                return PlainTextResponse("cross-site request blocked", status_code=403)
+        return await call_next(request)
     templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
     def d() -> Path:
@@ -31,17 +43,31 @@ def create_app(data: Path | None = None) -> FastAPI:
     def user_files():
         try:
             return load_user_files(d())
-        except NotInitialized:
+        except ConfigError:
             return None, None
 
+    def config_problem() -> str | None:
+        try:
+            load_user_files(d())
+        except NotInitialized:
+            return None
+        except ConfigError as e:
+            return str(e)
+
+    def last_collect():
+        try:
+            return json.loads((d() / "last_collect.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+
     def render(request: Request, name: str, **ctx):
-        last = d() / "last_collect.json"
         _, search = user_files()
+        problem = config_problem()
         ctx.setdefault("search", search)
         return templates.TemplateResponse(request, name, {
             "labels": STATUS_LABELS, "remote_labels": REMOTE_LABELS, "tabs": TABS,
-            "initialized": search is not None, "collecting": is_collecting(d() / "collect.lock"),
-            "last_collect": json.loads(last.read_text()) if last.exists() else None, **ctx})
+            "initialized": search is not None or problem is not None, "config_error": problem,
+            "collecting": is_collecting(d() / "collect.lock"), "last_collect": last_collect(), **ctx})
 
     def view(row):
         job = dict(row)
@@ -151,7 +177,7 @@ def create_app(data: Path | None = None) -> FastAPI:
         if is_collecting(d() / "collect.lock"):
             return render(request, "jobs.html", jobs=[], status="new", track=None,
                           notice="Já existe uma coleta em andamento.")
-        background.add_task(run_collect, d())
+        background.add_task(safe_run_collect, d())
         return render(request, "jobs.html", jobs=[], status="new", track=None,
                       notice="Buscando vagas… isso leva alguns minutos. Recarregue a página depois.")
 

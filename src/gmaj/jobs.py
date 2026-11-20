@@ -17,6 +17,10 @@ class Job:
     remote: str | None = None  # "remote" | "hybrid" | "onsite" | None
     posted_at: str | None = None  # ISO 8601
 
+    def __post_init__(self):
+        for f in ("title", "company", "location", "description"):
+            setattr(self, f, getattr(self, f) or "")  # sources sometimes send null
+
 
 def normalize(s: str) -> str:
     s = unicodedata.normalize("NFKD", s or "")

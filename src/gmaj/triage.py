@@ -43,11 +43,12 @@ def passes_filters(job: Job, track: Track) -> bool:
     title = normalize(job.title)
     if any(_has(x, title) for x in track.exclude):
         return False
-    if track.remote and job.remote and job.remote not in track.remote:
-        return False
     loc = normalize(job.location)
-    if track.locations and job.remote != "remote" and loc:
-        return any(normalize(l) in loc for l in track.locations)
+    remote = job.remote or ("remote" if re.search(r"\b(remote|remoto|anywhere|home office)\b", loc) else None)
+    if track.remote and remote and remote not in track.remote:
+        return False
+    if track.locations and remote != "remote" and loc:
+        return any(_has(l, loc) for l in track.locations)
     return True
 
 

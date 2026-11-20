@@ -49,6 +49,8 @@
   {% if not initialized %}
   <div class="notice error">Você ainda não tem um perfil. No terminal, rode <code>gmaj init --cv &lt;arquivo.pdf&gt;</code> e recarregue esta página.</div>
   {% endif %}
+  {% if config_error %}<div class="notice error">Há um erro nos seus arquivos de configuração. Corrija na aba <a href="/profile">Perfil</a>:
+{{ config_error }}</div>{% endif %}
   {% if notice %}<div class="notice">{{ notice }}</div>{% endif %}
   {% if last_collect %}
   <p class="muted">Última busca: {{ last_collect.finished_at[:16].replace('T', ' ') }} UTC · {{ last_collect.new }} novas, {{ last_collect.kept }} no seu perfil{% if last_collect.errors %} · {{ last_collect.errors|length }} fonte(s) com erro{% endif %}</p>

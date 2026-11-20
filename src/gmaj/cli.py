@@ -28,10 +28,11 @@ def main(argv: list[str] | None = None) -> int:
             print(f"error: {e}")
             return 1
     if args.cmd == "collect":
-        from gmaj.pipeline import NotInitialized, run_collect
+        from gmaj.llm import LLMError
+        from gmaj.pipeline import ConfigError, run_collect
         try:
             rep = run_collect()
-        except NotInitialized as e:
+        except (ConfigError, LLMError, ValueError) as e:
             print(e)
             return 1
         if rep.skipped:
