@@ -41,3 +41,28 @@ def test_never_stops_while_collecting():
     act = Activity(last_seen=0)
     act.bye(1)
     assert not should_stop(10_000, act, collecting=True)
+
+
+def test_open_reuses_running_server(monkeypatch):
+    from gmaj import launcher
+    opened = []
+    monkeypatch.setattr(launcher, "already_running", lambda port: True)
+    monkeypatch.setattr(launcher.webbrowser, "open", lambda url: opened.append(url))
+    monkeypatch.setattr(launcher.uvicorn, "Server", lambda *a, **k: (_ for _ in ()).throw(AssertionError("no server")))
+    assert launcher.open_app(8765) == 0
+    assert opened == ["http://127.0.0.1:8765"]
+
+
+def test_already_running_false_on_closed_port():
+    from gmaj.launcher import already_running
+    assert already_running(9) is False
+
+
+def test_watchdog_stops_server(tmp_path):
+    from gmaj.launcher import watch
+
+    class FakeServer:
+        should_exit = False
+    srv = FakeServer()
+    watch(srv, Activity(last_seen=-1000), tmp_path / "collect.lock", interval=0.01)
+    assert srv.should_exit

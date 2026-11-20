@@ -9,7 +9,8 @@ def build_parser() -> argparse.ArgumentParser:
     init.add_argument("--cv", required=True, type=Path)
     init.add_argument("--force", action="store_true", help="overwrite existing profile/search files")
     sub.add_parser("collect", help="collect, filter and score jobs now")
-    serve = sub.add_parser("serve", help="open the local web interface")
+    sub.add_parser("open", help="open the dashboard; the app stops by itself when you close it")
+    serve = sub.add_parser("serve", help="run the web interface until Ctrl+C")
     serve.add_argument("--port", type=int)
     sched = sub.add_parser("schedule", help="optional: run 'collect' automatically every day (off by default)")
     sched.add_argument("action", choices=["install", "remove"])
@@ -42,6 +43,10 @@ def main(argv: list[str] | None = None) -> int:
         for err in rep.errors:
             print(f"  error: {err}")
         return 0
+    if args.cmd == "open":
+        from gmaj.config import load_settings
+        from gmaj.launcher import open_app
+        return open_app(load_settings().port)
     if args.cmd == "serve":
         import uvicorn
 
